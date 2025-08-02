@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Recipe finder</string>
+
+    <!-- Favorites -->
+    <string name="favorites_title">Favorites</string>
+    <string name="favorites_empty">No favorites yet</string>"
+    <string name="favorites_empty_description">Add some favorites to see them here</string>
+
+    <!-- Results -->
+    <string name="suggested_recipes">Suggested recipes</string>
+    <string name="no_like_recipes_btn_text">I don\'t like these</string>
+
+</resources>
