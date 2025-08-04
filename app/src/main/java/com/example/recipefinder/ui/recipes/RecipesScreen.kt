@@ -27,6 +27,8 @@ import kotlinx.coroutines.flow.update
 
 @Composable
 fun RecipesScreen(
+    onRecipeClick: (String) -> Unit,
+    onFavoriteClick: () -> Unit,
 ) {
     val searchQueryFlow = MutableStateFlow("")
     val searchFieldState = TextFieldState(
@@ -68,12 +70,15 @@ fun RecipesScreen(
             ) {
                 items(count = 1, key = { it }) {
                     RecipeCard(
-                        title = "Fish and chips",
-                        duration = 20,
-                        imageUrl = "",
-                        onClick = {},
-                        onFavoriteClick = {},
-                        isFavorite = false,
+                        recipe = RecipeItemViewModel(
+                            id = "1",
+                            title = "Tasty Burger",
+                            duration = 20,
+                            imageUrl = "",
+                            isFavorite = false,
+                    ),
+                        onClick = { onRecipeClick("1") },
+                        onFavoriteClick = onFavoriteClick
                     )
                 }
             }
@@ -96,5 +101,8 @@ fun RecipesScreen(
 )
 @Composable
 fun RecipesScreenPreview() {
-    RecipesScreen()
+    RecipesScreen(
+        onRecipeClick = {},
+        onFavoriteClick = {}
+    )
 }

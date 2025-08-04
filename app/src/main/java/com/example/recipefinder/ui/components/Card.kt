@@ -14,10 +14,6 @@ import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -26,6 +22,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.recipefinder.R
+import com.example.recipefinder.ui.recipes.RecipeItemViewModel
 import com.example.recipefinder.ui.theme.AppColors
 import com.example.recipefinder.ui.theme.AppTextStyles
 import com.example.recipefinder.ui.theme.CornerShapes
@@ -33,12 +30,9 @@ import com.example.recipefinder.ui.utils.formatDuration
 
 @Composable
 fun RecipeCard(
-    title: String,
-    duration: Int,
-    imageUrl: String,
+    recipe: RecipeItemViewModel,
     onClick: () -> Unit,
     onFavoriteClick: () -> Unit,
-    isFavorite: Boolean,
     modifier: Modifier = Modifier,
     shape: RoundedCornerShape = CornerShapes.Medium,
     cardColors: CardColors = CardDefaults.cardColors(
@@ -62,7 +56,7 @@ fun RecipeCard(
         ) {
             AsyncImageWrapper(
                 modifier = Modifier.fillMaxHeight(),
-                imageUrl = imageUrl,
+                imageUrl = recipe.imageUrl,
                 placeholder = painterResource(R.drawable.img_placeholder)
             )
 
@@ -74,24 +68,24 @@ fun RecipeCard(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = title,
+                    text = recipe.title,
                     style = AppTextStyles.semibold,
                     color = AppColors.TextPrimary
                 )
 
                 Text(
-                    text = formatDuration(duration),
+                    text = formatDuration(recipe.duration),
                     style = AppTextStyles.regular,
                     fontSize = 14.sp,
                     color = AppColors.TextPrimary
                 )
             }
 
-                FavoriteIconButton(
-                    modifier = Modifier.padding(end = 16.dp),
-                    isFavorite = isFavorite,
-                    onClick = onFavoriteClick
-                )
+            FavoriteIconButton(
+                modifier = Modifier.padding(end = 16.dp),
+                isFavorite = recipe.isFavorite,
+                onClick = onFavoriteClick
+            )
         }
     }
 }
@@ -99,27 +93,31 @@ fun RecipeCard(
 @Preview(showBackground = true)
 @Composable
 fun RecipeCardPreview() {
-    var isFavoriteState by remember { mutableStateOf(false) }
     RecipeCard(
-        title = "Delicious Pasta",
-        duration = 30,
-        imageUrl = "",
-        isFavorite = isFavoriteState,
+        recipe = RecipeItemViewModel(
+            id = "1",
+            title = "Tasty Burger",
+            duration = 20,
+            imageUrl = "",
+            isFavorite = false,
+        ),
         onClick = {},
-        onFavoriteClick = { isFavoriteState = !isFavoriteState }
+        onFavoriteClick = {}
     )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun RecipeCardFavoritePreview() {
-    var isFavoriteState by remember { mutableStateOf(true) }
     RecipeCard(
-        title = "Tasty Burger",
-        duration = 20,
-        imageUrl = "",
-        isFavorite = isFavoriteState,
+        recipe = RecipeItemViewModel(
+            id = "2",
+            title = "Delicious Pasta",
+            duration = 20,
+            imageUrl = "",
+            isFavorite = true,
+        ),
         onClick = {},
-        onFavoriteClick = { isFavoriteState = !isFavoriteState }
+        onFavoriteClick = {}
     )
 }
