@@ -1,3 +1,5 @@
+package com.example.recipefinder
+
 import android.app.Application
 import coil.ImageLoader
 import coil.ImageLoaderFactory

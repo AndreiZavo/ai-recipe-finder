@@ -8,8 +8,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import com.example.recipefinder.ui.theme.AppColors
 import com.example.recipefinder.ui.theme.RecipeFinderTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -26,7 +29,11 @@ class MainActivity : ComponentActivity() {
                         .imePadding()
                         .navigationBarsPadding()
                 ) {
-                    RootApp()
+                    CompositionLocalProvider(
+                        LocalTextSelectionColors provides AppColors.TextSelectionColors
+                    ) {
+                        RootApp()
+                    }
                 }
             }
         }

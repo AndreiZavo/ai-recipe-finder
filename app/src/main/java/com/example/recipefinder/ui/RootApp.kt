@@ -42,7 +42,6 @@ fun RootApp() {
                         onRecipeClick = { id ->
                             navController.navigate(RecipeDetailsDestination(id))
                         },
-                        onFavoriteClick = {}
                     )
                 }
 
@@ -50,7 +49,10 @@ fun RootApp() {
                     val id = it.toRoute<RecipeDetailsDestination>().id
 
                     RecipeDetailsScreen(
-                        recipeId = id
+                        recipeId = id,
+                        onBackClick = {
+                            navController.navigateUp()
+                        },
                     )
                 }
             }

@@ -16,6 +16,7 @@ class AppColors {
         val Surface = Color(0xFFFFFFFF)
         val OnSurface = Color(0xFFFFFFFF)
         val Error = Color(0xFFFF0700)
+        val Transparent = Color(0x00000000)
 
         //texts
         val TextPrimary = Color(0xFF000000)
@@ -28,6 +29,7 @@ class AppColors {
         val PrimaryButton = Color(0xFF65558F)
         val ButtonDisabled = Color(0xFFACAEB3)
         val Border = Color(0xFFD9D9D9)
+        val Shadow = Color(0xFFE1E1E1)
 
         //Divider
         val Divider = Color(0xFFF4F4F4)

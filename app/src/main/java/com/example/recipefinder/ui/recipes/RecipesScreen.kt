@@ -28,7 +28,6 @@ import kotlinx.coroutines.flow.update
 @Composable
 fun RecipesScreen(
     onRecipeClick: (String) -> Unit,
-    onFavoriteClick: () -> Unit,
 ) {
     val searchQueryFlow = MutableStateFlow("")
     val searchFieldState = TextFieldState(
@@ -66,19 +65,33 @@ fun RecipesScreen(
             )
 
             LazyColumn(
-                modifier = Modifier.padding(top = 16.dp)
+                modifier = Modifier.padding(vertical = 16.dp),
             ) {
                 items(count = 1, key = { it }) {
                     RecipeCard(
+                        modifier = Modifier.padding(bottom = 16.dp),
                         recipe = RecipeItemViewModel(
                             id = "1",
                             title = "Tasty Burger",
                             duration = 20,
                             imageUrl = "",
                             isFavorite = false,
-                    ),
+                        ),
                         onClick = { onRecipeClick("1") },
-                        onFavoriteClick = onFavoriteClick
+                        onFavoriteClick = {}
+                    )
+
+                    RecipeCard(
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        recipe = RecipeItemViewModel(
+                            id = "1",
+                            title = "Delicious Pasta",
+                            duration = 20,
+                            imageUrl = "",
+                            isFavorite = false,
+                        ),
+                        onClick = { onRecipeClick("1") },
+                        onFavoriteClick = {}
                     )
                 }
             }
@@ -103,6 +116,5 @@ fun RecipesScreen(
 fun RecipesScreenPreview() {
     RecipesScreen(
         onRecipeClick = {},
-        onFavoriteClick = {}
     )
 }

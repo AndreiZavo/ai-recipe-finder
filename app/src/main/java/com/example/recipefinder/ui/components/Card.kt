@@ -18,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.recipefinder.R
@@ -26,6 +25,7 @@ import com.example.recipefinder.ui.recipes.RecipeItemViewModel
 import com.example.recipefinder.ui.theme.AppColors
 import com.example.recipefinder.ui.theme.AppTextStyles
 import com.example.recipefinder.ui.theme.CornerShapes
+import com.example.recipefinder.ui.utils.doubleShadowDrop
 import com.example.recipefinder.ui.utils.formatDuration
 
 @Composable
@@ -39,15 +39,14 @@ fun RecipeCard(
         containerColor = AppColors.Primary,
         contentColor = AppColors.OnPrimary,
     ),
-    elevation: Dp = 8.dp,
 ) {
     Card(
         modifier = modifier
-            .height(IntrinsicSize.Min),
+            .height(IntrinsicSize.Min)
+            .doubleShadowDrop(shape),
         onClick = onClick,
         shape = shape,
         colors = cardColors,
-        elevation = CardDefaults.cardElevation(defaultElevation = elevation),
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),
