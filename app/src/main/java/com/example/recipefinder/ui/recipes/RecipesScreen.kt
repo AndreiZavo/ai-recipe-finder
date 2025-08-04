@@ -3,10 +3,12 @@ package com.example.recipefinder.ui.recipes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.stringResource
@@ -14,6 +16,8 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.recipefinder.R
+import com.example.recipefinder.ui.components.PrimaryButton
+import com.example.recipefinder.ui.components.RecipeCard
 import com.example.recipefinder.ui.components.SearchBar
 import com.example.recipefinder.ui.theme.AppColors
 import com.example.recipefinder.ui.theme.AppTextStyles
@@ -57,6 +61,29 @@ fun RecipesScreen(
                 modifier = Modifier.padding(top = 32.dp),
                 text = stringResource(R.string.favorites_title),
                 style = AppTextStyles.bold,
+            )
+
+            LazyColumn(
+                modifier = Modifier.padding(top = 16.dp)
+            ) {
+                items(count = 1, key = { it }) {
+                    RecipeCard(
+                        title = "Fish and chips",
+                        duration = 20,
+                        imageUrl = "",
+                        onClick = {},
+                        onFavoriteClick = {},
+                        isFavorite = false,
+                    )
+                }
+            }
+
+            PrimaryButton(
+                modifier = Modifier
+                    .padding(top = 32.dp)
+                    .align(Alignment.CenterHorizontally),
+                text = stringResource(R.string.results_no_like_recipes_btn_text),
+                onClick = {}
             )
         }
     }
