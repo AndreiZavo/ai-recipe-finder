@@ -77,21 +77,23 @@ fun PrimaryButton(
 }
 
 @Composable
-fun FavoriteButton(
+fun FavoriteIconButton(
     isFavorite: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    tint: Color = AppColors.PrimaryButton
+    tint: Color = AppColors.IconTint
 ) {
     val icon = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder
     val animatedTint by animateColorAsState(
-        targetValue = if (isFavorite) tint else AppColors.PrimaryButton,
+        targetValue = if (isFavorite) tint else AppColors.IconTint,
         animationSpec = tween(durationMillis = 300)
     )
 
     Icon(
         imageVector = icon,
-        contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+        contentDescription = stringResource(
+            if (isFavorite) R.string.favorite_content_description_remove
+            else R.string.favorite_content_description_add),
         tint = animatedTint,
         modifier = modifier
             .clickable(
@@ -107,7 +109,7 @@ fun FavoriteButton(
 @Composable
 fun FavoriteButtonPreview() {
     var isFavoriteState by remember { mutableStateOf(false) }
-    FavoriteButton(
+    FavoriteIconButton(
         isFavorite = isFavoriteState,
         onClick = { isFavoriteState = !isFavoriteState }
     )
@@ -115,9 +117,9 @@ fun FavoriteButtonPreview() {
 
 @Preview(showBackground = true)
 @Composable
-fun FavoriteButtonFavoritedPreview() {
+fun FavoriteButtonFavoritePreview() {
     var isFavoriteState by remember { mutableStateOf(true) }
-    FavoriteButton(
+    FavoriteIconButton(
         isFavorite = isFavoriteState,
         onClick = { isFavoriteState = !isFavoriteState }
     )
@@ -134,7 +136,7 @@ fun PrimaryButtonPreview(
 ) {
     PrimaryButton(
         onClick = {},
-        text = stringResource(id = R.string.no_like_recipes_btn_text)
+        text = stringResource(id = R.string.results_no_like_recipes_btn_text)
     )
 }
 

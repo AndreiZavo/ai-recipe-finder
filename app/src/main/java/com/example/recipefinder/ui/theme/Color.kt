@@ -20,13 +20,14 @@ class AppColors {
         //texts
         val TextPrimary = Color(0xFF000000)
         val TextSecondary = Color(0xFFF5F5F5)
-
+        val TextPlaceholder = Color(0xFFB3B3B3)
         //Tags
-        val IconTint = Color(0xFF840B55)
+        val IconTint = Color(0xFF65558F)
         val MainAccent = Color(0xFF2A2850)
         val MainAccent10 = Color(0x1A2A2850)
         val PrimaryButton = Color(0xFF65558F)
         val ButtonDisabled = Color(0xFFACAEB3)
+        val Border = Color(0xFFD9D9D9)
 
         //Divider
         val Divider = Color(0xFFF4F4F4)

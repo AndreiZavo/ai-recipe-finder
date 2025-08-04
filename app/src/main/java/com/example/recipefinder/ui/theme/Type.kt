@@ -54,7 +54,7 @@ object AppTextStyles {
             fontFamily = FontFamily.Outfit,
             fontWeight = FontWeight.Bold,
             color = AppColors.TextPrimary,
-            fontSize = 16.sp
+            fontSize = 32.sp
         )
     }
 }

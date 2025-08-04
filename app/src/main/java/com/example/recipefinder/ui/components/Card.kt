@@ -87,7 +87,7 @@ fun RecipeCard(
                 )
             }
 
-                FavoriteButton(
+                FavoriteIconButton(
                     modifier = Modifier.padding(end = 16.dp),
                     isFavorite = isFavorite,
                     onClick = onFavoriteClick

@@ -1,4 +1,4 @@
-package com.example.recipefinder
+package com.example.recipefinder.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
