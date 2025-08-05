@@ -20,4 +20,8 @@
     <string name="search_error_message_default">We couldn\'t fetch recipes right now. Please check your internet connection and try again. If the issue continues, please try again later.</string>
     <string name="ok">ok</string>
 
+    <!-- Recipe Details -->
+    <string name="recipe_details_ingredients_title">Ingredients</string>
+    <string name="recipe_details_instructions_title">Instructions</string>
+
 </resources>

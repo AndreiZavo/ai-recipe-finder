@@ -76,11 +76,11 @@ fun RecipesScreen(
                 .fillMaxSize()
                 .background(AppColors.Background)
                 .padding(paddingValues)
-                .padding(top = 32.dp)
                 .padding(horizontal = 16.dp)
         ) {
             SearchBar(
                 modifier = Modifier
+                    .padding(top = 32.dp)
                     .fillMaxWidth(),
                 fieldState = searchFieldState,
                 onSearchIconClick = {
@@ -106,7 +106,7 @@ fun RecipesScreen(
             ) {
                 recipeState.ifSuccess { recipes ->
                     LazyColumn(
-                        modifier = Modifier.padding(vertical = 16.dp),
+                        modifier = Modifier.padding(top = 16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         items(
@@ -133,7 +133,7 @@ fun RecipesScreen(
                             if (searchModeEnabled) {
                                 PrimaryButton(
                                     modifier = Modifier
-                                        .padding(top = 16.dp),
+                                        .padding(top = 20.dp),
                                     text = stringResource(R.string.results_no_like_recipes_btn_text),
                                     onClick = {
                                         viewModel.searchRecipes(searchFieldState.value)
