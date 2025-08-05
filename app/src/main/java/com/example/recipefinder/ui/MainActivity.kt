@@ -1,17 +1,18 @@
 package com.example.recipefinder.ui
 
+import RootApp
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import com.example.recipefinder.data.remote.GeminiService
+import com.example.recipefinder.ui.theme.AppColors
 import com.example.recipefinder.ui.theme.RecipeFinderTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -28,21 +29,11 @@ class MainActivity : ComponentActivity() {
                         .imePadding()
                         .navigationBarsPadding()
                 ) {
-//                    CompositionLocalProvider(
-//                        LocalTextSelectionColors provides AppColors.TextSelectionColors
-//                    ) {
-//                        RootApp()
-//                    }
-
-                    LaunchedEffect(Unit) {
-                        try {
-                            val recipes = GeminiService.searchRecipes("chocolate cake")
-                            Log.d("GeminiTest", "Recipes: $recipes")
-                        } catch (e: Exception) {
-                            Log.e("GeminiTest", "Error fetching recipes", e)
-                        }
+                    CompositionLocalProvider(
+                        LocalTextSelectionColors provides AppColors.TextSelectionColors
+                    ) {
+                        RootApp()
                     }
-
                 }
             }
         }

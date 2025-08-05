@@ -39,17 +39,31 @@ fun RootApp() {
             ) {
                 composable<RecipesDestination> {
                     RecipesScreen(
-                        onRecipeClick = { id ->
-                            navController.navigate(RecipeDetailsDestination(id))
+                        onRecipeClick = { title, duration, imageUrl, ingredients, instructions ->
+                            navController.navigate(RecipeDetailsDestination(
+                                title = title,
+                                duration = duration,
+                                imageUrl = imageUrl,
+                                ingredients = ingredients,
+                                instructions = instructions,
+                            ))
                         },
                     )
                 }
 
                 composable<RecipeDetailsDestination> {
-                    val id = it.toRoute<RecipeDetailsDestination>().id
+                    val title = it.toRoute<RecipeDetailsDestination>().title
+                    val duration = it.toRoute<RecipeDetailsDestination>().duration
+                    val imageUrl = it.toRoute<RecipeDetailsDestination>().imageUrl
+                    val ingredients = it.toRoute<RecipeDetailsDestination>().ingredients
+                    val instructions = it.toRoute<RecipeDetailsDestination>().instructions
 
                     RecipeDetailsScreen(
-                        recipeId = id,
+                        recipeTitle = title,
+                        recipeDuration = duration,
+                        recipeImageUrl = imageUrl,
+                        recipeIngredients = ingredients,
+                        recipeInstructions = instructions,
                         onBackClick = {
                             navController.navigateUp()
                         },

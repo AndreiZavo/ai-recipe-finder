@@ -1,120 +1,165 @@
 package com.example.recipefinder.ui.recipes
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Devices
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.recipefinder.R
+import com.example.recipefinder.ui.components.GenericDialog
+import com.example.recipefinder.ui.components.PositiveDialogButton
 import com.example.recipefinder.ui.components.PrimaryButton
+import com.example.recipefinder.ui.components.ProgressOverlay
 import com.example.recipefinder.ui.components.RecipeCard
 import com.example.recipefinder.ui.components.SearchBar
 import com.example.recipefinder.ui.theme.AppColors
 import com.example.recipefinder.ui.theme.AppTextStyles
-import com.example.recipefinder.ui.utils.text.TextFieldState
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
+import com.example.recipefinder.ui.utils.text.emptyFieldValidator
+import com.example.recipefinder.ui.utils.text.isFormValid
+import com.example.recipefinder.ui.utils.text.minLengthValidator
+import com.example.recipefinder.ui.utils.text.rememberFieldState
+import com.example.recipefinder.utils.ifFailed
+import com.example.recipefinder.utils.ifSuccess
+import com.example.recipefinder.utils.isLoading
+import com.example.recipefinder.utils.withoutEmoji
+
+typealias recipeParameters = (
+    title: String,
+    duration: Int,
+    imageUrl: String,
+    ingredients: List<String>,
+    instructions: List<String>
+) -> Unit
 
 @Composable
 fun RecipesScreen(
-    onRecipeClick: (String) -> Unit,
+    onRecipeClick: recipeParameters,
+    viewModel: RecipesViewModel = hiltViewModel()
 ) {
-    val searchQueryFlow = MutableStateFlow("")
-    val searchFieldState = TextFieldState(
-        initialValue = "",
+    val recipeState by viewModel.recipesFlow.collectAsState()
+    var searchModeEnabled by remember { mutableStateOf(false) }
+
+    val searchFieldState = rememberFieldState(
         valuePreprocessor = { _, newValue ->
-            searchQueryFlow.update { newValue }
-            newValue
+            val value = newValue.withoutEmoji()
+            value
         },
-        validator = null,
+        validator = emptyFieldValidator(R.string.search_field_empty_error)
+                + minLengthValidator(R.string.search_field_min_length_error, 3),
         lazyValidate = false
     )
+
     val searchFieldFocusRequester = remember { FocusRequester() }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = AppColors.Background
+        containerColor = AppColors.Primary
     ) { paddingValues ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(AppColors.Background)
                 .padding(paddingValues)
                 .padding(top = 32.dp)
                 .padding(horizontal = 16.dp)
         ) {
             SearchBar(
+                modifier = Modifier
+                    .fillMaxWidth(),
                 fieldState = searchFieldState,
-                onSearchIconClick = {},
+                onSearchIconClick = {
+                    if (isFormValid(searchFieldState)) {
+                        searchModeEnabled = true
+                        viewModel.searchRecipes(searchFieldState.value)
+                    }
+                },
                 searchFieldFocusRequester = searchFieldFocusRequester
             )
 
             Text(
                 modifier = Modifier.padding(top = 32.dp),
-                text = stringResource(R.string.favorites_title),
+                text = stringResource(
+                    if (!searchModeEnabled) R.string.favorites_title else R.string.results_suggested_recipes
+                ),
                 style = AppTextStyles.bold,
             )
 
-            LazyColumn(
-                modifier = Modifier.padding(vertical = 16.dp),
+            ProgressOverlay(
+                modifier = Modifier.fillMaxSize(),
+                loading = recipeState.isLoading,
             ) {
-                items(count = 1, key = { it }) {
-                    RecipeCard(
-                        modifier = Modifier.padding(bottom = 16.dp),
-                        recipe = RecipeItemViewModel(
-                            id = "1",
-                            title = "Tasty Burger",
-                            duration = 20,
-                            imageUrl = "",
-                            isFavorite = false,
-                        ),
-                        onClick = { onRecipeClick("1") },
-                        onFavoriteClick = {}
-                    )
+                recipeState.ifSuccess { recipes ->
+                    LazyColumn(
+                        modifier = Modifier.padding(vertical = 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        items(
+                            items = recipes,
+                            key = { recipe -> recipe.id }
+                        ) { recipe ->
+                            RecipeCard(
+                                modifier = Modifier.padding(bottom = 16.dp),
+                                recipe = recipe,
+                                onClick = {
+                                    onRecipeClick(
+                                        recipe.title,
+                                        recipe.duration,
+                                        recipe.imageUrl,
+                                        recipe.ingredients,
+                                        recipe.instructions
+                                    )
+                                },
+                                onFavoriteClick = {}
+                            )
+                        }
 
-                    RecipeCard(
-                        modifier = Modifier.padding(bottom = 16.dp),
-                        recipe = RecipeItemViewModel(
-                            id = "1",
-                            title = "Delicious Pasta",
-                            duration = 20,
-                            imageUrl = "",
-                            isFavorite = false,
-                        ),
-                        onClick = { onRecipeClick("1") },
-                        onFavoriteClick = {}
-                    )
+                        item {
+                            if (searchModeEnabled) {
+                                PrimaryButton(
+                                    modifier = Modifier
+                                        .padding(top = 16.dp),
+                                    text = stringResource(R.string.results_no_like_recipes_btn_text),
+                                    onClick = {
+                                        viewModel.searchRecipes(searchFieldState.value)
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
-            PrimaryButton(
-                modifier = Modifier
-                    .padding(top = 32.dp)
-                    .align(Alignment.CenterHorizontally),
-                text = stringResource(R.string.results_no_like_recipes_btn_text),
-                onClick = {}
-            )
+            recipeState.ifFailed {
+                GenericDialog(
+                    onDismissRequest = {
+                        viewModel.searchRecipes(searchFieldState.value)
+                    },
+                    title = stringResource(R.string.search_error_title),
+                    message = stringResource(R.string.search_error_message_default),
+                    positiveButton = PositiveDialogButton(
+                        text = stringResource(R.string.ok),
+                        onClick = {
+                            viewModel.searchRecipes(searchFieldState.value)
+                        }
+                    )
+                )
+            }
         }
     }
-}
-
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xFFFFFFFF,
-    device = Devices.PIXEL_6
-)
-@Composable
-fun RecipesScreenPreview() {
-    RecipesScreen(
-        onRecipeClick = {},
-    )
 }

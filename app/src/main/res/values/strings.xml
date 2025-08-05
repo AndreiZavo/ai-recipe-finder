@@ -11,6 +11,13 @@
     <!-- Results -->
     <string name="results_suggested_recipes">Suggested recipes</string>
     <string name="results_no_like_recipes_btn_text">I don\'t like these</string>
-    <string name="results_search_bar_placeholder">What do you feel like eating?</string>"
+    <string name="results_search_bar_placeholder">What do you feel like eating?</string>
+
+    <!-- Search -->
+    <string name="search_field_empty_error">Search query cannot be empty.</string>
+    <string name="search_field_min_length_error">Search query must be 3+ characters.</string>
+    <string name="search_error_title">Search Error</string>
+    <string name="search_error_message_default">We couldn\'t fetch recipes right now. Please check your internet connection and try again. If the issue continues, please try again later.</string>
+    <string name="ok">ok</string>
 
 </resources>

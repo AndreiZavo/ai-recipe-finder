@@ -35,11 +35,16 @@ import com.example.recipefinder.ui.components.StatusBarsAppearance
 import com.example.recipefinder.ui.theme.AppColors
 import com.example.recipefinder.ui.theme.AppTextStyles
 import com.example.recipefinder.ui.utils.ShowOnAppearanceToolbar
+import com.example.recipefinder.ui.utils.formatDuration
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeDetailsScreen(
-    recipeId: String,
+    recipeTitle: String,
+    recipeDuration: Int,
+    recipeImageUrl: String,
+    recipeIngredients: List<String>,
+    recipeInstructions: List<String>,
     onBackClick: () -> Unit,
 ) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
@@ -66,7 +71,7 @@ fun RecipeDetailsScreen(
                         .fillMaxWidth()
                         .height(headerHeight)
                         .clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)),
-                    imageUrl = "",
+                    imageUrl = recipeImageUrl,
                     placeholder = painterResource(R.drawable.img_placeholder),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
@@ -88,14 +93,14 @@ fun RecipeDetailsScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = "Mashed Potatoes",
+                        text = recipeTitle,
                         style = AppTextStyles.semibold,
                         fontSize = 24.sp,
                         color = AppColors.TextPrimary
                     )
 
                     Text(
-                        text = "20 min.",
+                        text = formatDuration(recipeDuration),
                         style = AppTextStyles.regular,
                         fontSize = 14.sp,
                         color = AppColors.TextPrimary
@@ -103,7 +108,8 @@ fun RecipeDetailsScreen(
                 }
 
                 FavoriteIconButton(
-                    modifier = Modifier.padding(end = 16.dp),
+                    modifier = Modifier
+                        .padding(end = 16.dp),
                     isFavorite = false,
                     onClick = {}
                 )
@@ -118,7 +124,7 @@ fun RecipeDetailsScreen(
         ShowOnAppearanceToolbar(
             onBackClick = onBackClick,
             show = showTopBar,
-            title = "Mashed Potatoes"
+            title = recipeTitle
         )
     }
 }

@@ -107,11 +107,12 @@ fun SearchBar(
                 maxLines = 1,
                 singleLine = true,
                 interactionSource = interactionSource,
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(
-                    onDone = {
+                    onSearch = {
                         keyboardController?.hide()
-                        focusManager.clearFocus()
+                        focusManager.clearFocus(force = true)
+                        onSearchIconClick()
                     }
                 ),
                 decorationBox = {
@@ -149,7 +150,7 @@ fun SearchBar(
                             indication = null,
                             onClick = { fieldState.onValueChange("") }
                         ),
-                    imageVector = Icons.Filled.Close,
+                    imageVector = Icons.Default.Close,
                     contentDescription = null,
                 )
             }

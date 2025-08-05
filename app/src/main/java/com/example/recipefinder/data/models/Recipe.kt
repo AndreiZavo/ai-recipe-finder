@@ -8,6 +8,6 @@ data class Recipe(
     val title: String,
     val durationMinutes: Int,
     val ingredients: List<String>,
-    val instructions: String,
-    val imageUrl: String? = null
+    val instructions: List<String>,
+    val imageUrl: String
 )

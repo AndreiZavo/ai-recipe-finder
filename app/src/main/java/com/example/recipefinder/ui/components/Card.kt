@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -69,7 +70,9 @@ fun RecipeCard(
                 Text(
                     text = recipe.title,
                     style = AppTextStyles.semibold,
-                    color = AppColors.TextPrimary
+                    color = AppColors.TextPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 Text(
@@ -95,10 +98,12 @@ fun RecipeCardPreview() {
     RecipeCard(
         recipe = RecipeItemViewModel(
             id = "1",
-            title = "Tasty Burger",
+            title = "Refreshing Black Bean Salsa Salad with Chickpeas",
             duration = 20,
-            imageUrl = "",
             isFavorite = false,
+            imageUrl = "",
+            ingredients = listOf(),
+            instructions = listOf()
         ),
         onClick = {},
         onFavoriteClick = {}
@@ -113,8 +118,10 @@ fun RecipeCardFavoritePreview() {
             id = "2",
             title = "Delicious Pasta",
             duration = 20,
-            imageUrl = "",
             isFavorite = true,
+            imageUrl = "",
+            ingredients = listOf(),
+            instructions = listOf()
         ),
         onClick = {},
         onFavoriteClick = {}
