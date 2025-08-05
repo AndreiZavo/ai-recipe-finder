@@ -5,11 +5,14 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+    id("com.google.gms.google-services")
 }
 
 android {
     namespace = "com.example.recipefinder"
     compileSdk = 36
+
+    val geminiApiKey: String = System.getenv("GEMINI_API_KEY") ?: ""
 
     defaultConfig {
         applicationId = "com.example.recipefinder"
@@ -19,6 +22,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
     }
 
     buildTypes {
@@ -39,6 +43,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -67,6 +72,17 @@ dependencies {
     ksp("com.google.dagger:hilt-android-compiler:2.56.2")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:34.0.0"))
+
+
     // Coil
     implementation("io.coil-kt:coil-compose:2.7.0")
+
+    //DataStore
+    implementation("androidx.datastore:datastore:1.1.7")
+    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.6")
+
+    //Gemini AI
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
 }
