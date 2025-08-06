@@ -30,7 +30,6 @@ class GeminiService @Inject constructor(
                 ]
                 Rules:
                 - Always use the same value for "imageUrl" exactly as shown above.
-                - Make sure the title is at most 40 characters
                 - No other text before or after the JSON.
             """.trimIndent()
 

@@ -140,7 +140,7 @@ fun PrimaryButtonPreview(
 ) {
     PrimaryButton(
         onClick = {},
-        text = stringResource(id = R.string.results_no_like_recipes_btn_text)
+        text = stringResource(id = R.string.results_no_like_recipes)
     )
 }
 

@@ -10,8 +10,10 @@
 
     <!-- Results -->
     <string name="results_suggested_recipes">Suggested recipes</string>
-    <string name="results_no_like_recipes_btn_text">I don\'t like these</string>
+    <string name="results_no_like_recipes">I don\'t like these</string>
     <string name="results_search_bar_placeholder">What do you feel like eating?</string>
+    <string name="results_try_again">Try again</string>
+    <string name="results_no_results">Hmm, nothing here yet..</string>
 
     <!-- Search -->
     <string name="search_field_empty_error">Search query cannot be empty.</string>

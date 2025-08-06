@@ -76,7 +76,6 @@ dependencies {
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:34.0.0"))
 
-
     // Coil
     implementation("io.coil-kt:coil-compose:2.7.0")
 
@@ -86,4 +85,7 @@ dependencies {
 
     //Gemini AI
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+
+    // Lottie Animations
+    implementation("com.airbnb.android:lottie-compose:6.4.0")
 }

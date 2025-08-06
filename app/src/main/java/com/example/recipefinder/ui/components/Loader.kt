@@ -5,24 +5,31 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.airbnb.lottie.LottieComposition
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieConstants
 import com.example.recipefinder.ui.theme.AppColors
 
 @Composable
 fun Loader(
     modifier: Modifier = Modifier,
-    color: Color = AppColors.MainAccent
+    animationComposition: LottieComposition?,
 ) {
-    Box(modifier, contentAlignment = Alignment.Center) {
-        CircularProgressIndicator(
-            strokeWidth = 2.dp,
-            color = color
+    Box(
+        modifier = modifier
+            .padding(horizontal = 32.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        LottieAnimation(
+            composition = animationComposition,
+            iterations = LottieConstants.IterateForever
         )
     }
 }
@@ -30,6 +37,7 @@ fun Loader(
 @Composable
 fun ProgressOverlay(
     loading: Boolean,
+    animationComposition: LottieComposition?,
     modifier: Modifier = Modifier,
     overlayColor: Color = AppColors.Primary,
     content: @Composable BoxScope.() -> Unit
@@ -48,7 +56,8 @@ fun ProgressOverlay(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
                         onClick = {}
-                    )
+                    ),
+                animationComposition = animationComposition
             )
         }
     }

@@ -55,6 +55,7 @@ fun SearchBar(
     onSearchIconClick: () -> Unit,
     searchFieldFocusRequester: FocusRequester,
     shape: Shape = CornerShapes.Large,
+    readOnly: Boolean = false,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val focusManager = LocalFocusManager.current
@@ -104,6 +105,7 @@ fun SearchBar(
                     fontSize = 16.sp,
                     color = AppColors.TextPrimary
                 ),
+                readOnly = readOnly,
                 maxLines = 1,
                 singleLine = true,
                 interactionSource = interactionSource,

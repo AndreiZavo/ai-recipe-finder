@@ -112,7 +112,6 @@ fun RecipeDetailsScreen(
                 }
 
                 FavoriteIconButton(
-                    modifier = Modifier.padding(end = 16.dp),
                     isFavorite = recipe.isFavorite,
                     onClick = {
                         recipe.toggleFavorite()

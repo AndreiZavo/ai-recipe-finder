@@ -30,6 +30,13 @@ val Context.dataStore: DataStore<FavoriteRecipes> by dataStore(
     serializer = FavoriteSerializer
 )
 
+//TODO see if you have time to implement this
+data class RecipeInfo(
+    val searchedRecipes: List<RecipeItemViewModel>,
+    val favoriteRecipes: List<RecipeItemViewModel>,
+    val displayedRecipes: List<RecipeItemViewModel>
+)
+
 @HiltViewModel
 class RecipesViewModel @Inject constructor(
     @ApplicationContext context: Context,
@@ -48,7 +55,8 @@ class RecipesViewModel @Inject constructor(
         recipesFlow.execute {
             val searchResult = geminiService.searchRecipes(query)
 
-            val favIds = favoriteIds()
+            Log.d("gemini", searchResult.toString())
+            val favIds = getFavoriteRecipeIds()
             val newRecipes = searchResult.map { recipe ->
                 RecipeItemViewModel(
                     id = recipe.id,
@@ -81,15 +89,19 @@ class RecipesViewModel @Inject constructor(
 
             loadFavoriteRecipes()
 
-            val favIds = favoriteIds()
-            recipesFlow.execute {
-                update {
-                    it.data.map { recipe ->
-                        if (recipe.id == clickedRecipe.id) {
-                            recipe.copy(favoriteState = !recipe.favoriteState)
-                        } else {
-                            recipe.copy(favoriteState = recipe.id in favIds)
-                        }
+            updateFavoriteState(clickedRecipe)
+        }
+    }
+
+    private suspend fun updateFavoriteState(recipeItem: RecipeItemViewModel) {
+        val favoriteIds = getFavoriteRecipeIds()
+        recipesFlow.execute {
+            update {
+                it.data.map { recipe ->
+                    if (recipe.id == recipeItem.id) {
+                        recipe.copy(favoriteState = !recipe.favoriteState)
+                    } else {
+                        recipe.copy(favoriteState = recipe.id in favoriteIds)
                     }
                 }
             }
@@ -103,7 +115,6 @@ class RecipesViewModel @Inject constructor(
                 favoriteRecipes
             }
                 .onSuccess {
-                    Log.d("DataStore", "Favorite recipes loaded: ${it.recipes}")
                     update(it.recipes)
                 }
                 .onFailure {
@@ -112,7 +123,7 @@ class RecipesViewModel @Inject constructor(
         }
     }
 
-    private suspend fun favoriteIds(): Set<String> =
+    private suspend fun getFavoriteRecipeIds(): Set<String> =
         appDataStore.data.first().recipes.map { it.id }.toSet()
 }
 
