@@ -1,5 +1,7 @@
 package com.example.recipefinder.data.models
 
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -10,4 +12,9 @@ data class Recipe(
     val ingredients: List<String>,
     val instructions: List<String>,
     val imageUrl: String
+)
+
+@Serializable
+data class FavoriteRecipes(
+    val recipes: PersistentList<Recipe> = persistentListOf()
 )

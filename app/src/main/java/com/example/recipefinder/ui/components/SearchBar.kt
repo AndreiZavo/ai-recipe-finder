@@ -80,7 +80,7 @@ fun SearchBar(
             .background(AppColors.Primary, shape = shape)
             .border(
                 width = 1.dp,
-                color = AppColors.Border,
+                color = AppColors.BorderPrimary,
                 shape = shape
             )
             .clickable(interactionSource = interactionSource, indication = null, onClick = {})

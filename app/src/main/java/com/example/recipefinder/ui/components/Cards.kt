@@ -86,7 +86,10 @@ fun RecipeCard(
             FavoriteIconButton(
                 modifier = Modifier.padding(end = 16.dp),
                 isFavorite = recipe.isFavorite,
-                onClick = onFavoriteClick
+                onClick = {
+                    recipe.toggleFavorite()
+                    onFavoriteClick()
+                }
             )
         }
     }
@@ -100,7 +103,7 @@ fun RecipeCardPreview() {
             id = "1",
             title = "Refreshing Black Bean Salsa Salad with Chickpeas",
             duration = 20,
-            isFavorite = false,
+            favoriteState = false,
             imageUrl = "",
             ingredients = listOf(),
             instructions = listOf()
@@ -118,7 +121,7 @@ fun RecipeCardFavoritePreview() {
             id = "2",
             title = "Delicious Pasta",
             duration = 20,
-            isFavorite = true,
+            favoriteState = true,
             imageUrl = "",
             ingredients = listOf(),
             instructions = listOf()

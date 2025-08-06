@@ -3,8 +3,6 @@ package com.example.recipefinder.ui.components
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,6 +14,7 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonElevation
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -76,38 +75,43 @@ fun PrimaryButton(
     }
 }
 
+
 @Composable
 fun FavoriteIconButton(
     isFavorite: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    tint: Color = AppColors.IconTint
+    enabled: Boolean = true,
+    iconTint: Color = AppColors.IconTint,
+    unselectedTint: Color = AppColors.BorderSecondary
 ) {
-    val icon = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder
-    val animatedTint by animateColorAsState(
-        targetValue = if (isFavorite) tint else AppColors.IconTint,
+    val iconImageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder
+    val animatedIconTint by animateColorAsState(
+        targetValue = if (isFavorite) iconTint else unselectedTint,
         animationSpec = tween(durationMillis = 300)
     )
 
-    Icon(
-        imageVector = icon,
-        contentDescription = stringResource(
-            if (isFavorite) R.string.favorite_content_description_remove
-            else R.string.favorite_content_description_add),
-        tint = animatedTint,
-        modifier = modifier
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick
-            )
-            .size(24.dp)
-    )
+    IconButton(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled
+    ) {
+        Icon(
+            modifier = Modifier.size(24.dp),
+            imageVector = iconImageVector,
+            contentDescription = stringResource(
+                if (isFavorite) R.string.favorite_content_description_remove
+                else R.string.favorite_content_description_add
+            ),
+            tint = animatedIconTint,
+        )
+    }
 }
+
 
 @Preview(showBackground = true)
 @Composable
-fun FavoriteButtonPreview() {
+private fun FavoriteButtonPreview() {
     var isFavoriteState by remember { mutableStateOf(false) }
     FavoriteIconButton(
         isFavorite = isFavoriteState,
@@ -117,7 +121,7 @@ fun FavoriteButtonPreview() {
 
 @Preview(showBackground = true)
 @Composable
-fun FavoriteButtonFavoritePreview() {
+private fun FavoriteButtonFavoritePreview() {
     var isFavoriteState by remember { mutableStateOf(true) }
     FavoriteIconButton(
         isFavorite = isFavoriteState,

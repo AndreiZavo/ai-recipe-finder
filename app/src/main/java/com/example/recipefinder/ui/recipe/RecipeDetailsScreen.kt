@@ -34,6 +34,7 @@ import com.example.recipefinder.ui.components.FavoriteIconButton
 import com.example.recipefinder.ui.components.OrderedList
 import com.example.recipefinder.ui.components.StatusBarsAppearance
 import com.example.recipefinder.ui.components.UnorderedList
+import com.example.recipefinder.ui.recipes.RecipeItemViewModel
 import com.example.recipefinder.ui.theme.AppColors
 import com.example.recipefinder.ui.theme.AppTextStyles
 import com.example.recipefinder.ui.utils.ShowOnAppearanceToolbar
@@ -42,11 +43,7 @@ import com.example.recipefinder.ui.utils.formatDuration
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeDetailsScreen(
-    recipeTitle: String,
-    recipeDuration: Int,
-    recipeImageUrl: String,
-    recipeIngredients: List<String>,
-    recipeInstructions: List<String>,
+    recipe: RecipeItemViewModel,
     onBackClick: () -> Unit,
 ) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
@@ -72,7 +69,7 @@ fun RecipeDetailsScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(headerHeight),
-                    imageUrl = recipeImageUrl,
+                    imageUrl = recipe.imageUrl,
                     placeholder = painterResource(R.drawable.img_placeholder),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
@@ -94,14 +91,14 @@ fun RecipeDetailsScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = recipeTitle,
+                        text = recipe.title,
                         style = AppTextStyles.semibold,
                         fontSize = 24.sp,
                         color = AppColors.TextPrimary
                     )
 
                     Text(
-                        text = formatDuration(recipeDuration),
+                        text = formatDuration(recipe.duration),
                         style = AppTextStyles.regular,
                         fontSize = 14.sp,
                         color = AppColors.TextPrimary
@@ -110,8 +107,10 @@ fun RecipeDetailsScreen(
 
                 FavoriteIconButton(
                     modifier = Modifier.padding(end = 16.dp),
-                    isFavorite = false,
-                    onClick = {}
+                    isFavorite = recipe.isFavorite,
+                    onClick = {
+                        recipe.toggleFavorite()
+                    }
                 )
             }
 
@@ -120,7 +119,7 @@ fun RecipeDetailsScreen(
                     .padding(top = 15.dp)
                     .padding(horizontal = 16.dp),
                 title = stringResource(R.string.recipe_details_ingredients_title),
-                items = recipeIngredients
+                items = recipe.ingredients
             )
 
             OrderedList(
@@ -128,7 +127,7 @@ fun RecipeDetailsScreen(
                     .padding(top = 14.dp)
                     .padding(horizontal = 16.dp),
                 title = stringResource(R.string.recipe_details_instructions_title),
-                items = recipeInstructions
+                items = recipe.instructions
             )
 
             Spacer(modifier = Modifier.height(120.dp))
@@ -137,7 +136,7 @@ fun RecipeDetailsScreen(
         ShowOnAppearanceToolbar(
             onBackClick = onBackClick,
             show = showTopBar,
-            title = recipeTitle
+            title = recipe.title,
         )
     }
 }

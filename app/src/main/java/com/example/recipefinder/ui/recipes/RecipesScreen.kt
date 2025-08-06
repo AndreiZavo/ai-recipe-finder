@@ -14,6 +14,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,21 +40,13 @@ import com.example.recipefinder.utils.ifSuccess
 import com.example.recipefinder.utils.isLoading
 import com.example.recipefinder.utils.withoutEmoji
 
-typealias recipeParameters = (
-    title: String,
-    duration: Int,
-    imageUrl: String,
-    ingredients: List<String>,
-    instructions: List<String>
-) -> Unit
-
 @Composable
 fun RecipesScreen(
-    onRecipeClick: recipeParameters,
+    onRecipeClick: (RecipeItemViewModel) -> Unit,
     viewModel: RecipesViewModel = hiltViewModel()
 ) {
     val recipeState by viewModel.recipesFlow.collectAsState()
-    var searchModeEnabled by remember { mutableStateOf(false) }
+    var searchModeEnabled by rememberSaveable { mutableStateOf(false) }
 
     val searchFieldState = rememberFieldState(
         valuePreprocessor = { _, newValue ->
@@ -116,15 +109,7 @@ fun RecipesScreen(
                             RecipeCard(
                                 modifier = Modifier.padding(bottom = 16.dp),
                                 recipe = recipe,
-                                onClick = {
-                                    onRecipeClick(
-                                        recipe.title,
-                                        recipe.duration,
-                                        recipe.imageUrl,
-                                        recipe.ingredients,
-                                        recipe.instructions
-                                    )
-                                },
+                                onClick = { onRecipeClick(recipe) },
                                 onFavoriteClick = {}
                             )
                         }

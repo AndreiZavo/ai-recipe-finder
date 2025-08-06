@@ -11,9 +11,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.example.recipefinder.ui.recipe.RecipeDetailsDestination
 import com.example.recipefinder.ui.recipe.RecipeDetailsScreen
+import com.example.recipefinder.ui.recipes.RecipeItemViewModel
 import com.example.recipefinder.ui.recipes.RecipesDestination
 import com.example.recipefinder.ui.recipes.RecipesScreen
 
@@ -39,34 +39,24 @@ fun RootApp() {
             ) {
                 composable<RecipesDestination> {
                     RecipesScreen(
-                        onRecipeClick = { title, duration, imageUrl, ingredients, instructions ->
-                            navController.navigate(RecipeDetailsDestination(
-                                title = title,
-                                duration = duration,
-                                imageUrl = imageUrl,
-                                ingredients = ingredients,
-                                instructions = instructions,
-                            ))
-                        },
+                        onRecipeClick = { recipe ->
+                            navController.currentBackStackEntry
+                                ?.savedStateHandle
+                                ?.set("recipe", recipe)
+                            navController.navigate(RecipeDetailsDestination)
+                        }
                     )
                 }
 
                 composable<RecipeDetailsDestination> {
-                    val title = it.toRoute<RecipeDetailsDestination>().title
-                    val duration = it.toRoute<RecipeDetailsDestination>().duration
-                    val imageUrl = it.toRoute<RecipeDetailsDestination>().imageUrl
-                    val ingredients = it.toRoute<RecipeDetailsDestination>().ingredients
-                    val instructions = it.toRoute<RecipeDetailsDestination>().instructions
+                    val recipe = navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.get<RecipeItemViewModel>("recipe")
+                        ?: return@composable
 
                     RecipeDetailsScreen(
-                        recipeTitle = title,
-                        recipeDuration = duration,
-                        recipeImageUrl = imageUrl,
-                        recipeIngredients = ingredients,
-                        recipeInstructions = instructions,
-                        onBackClick = {
-                            navController.navigateUp()
-                        },
+                        recipe = recipe,
+                        onBackClick = { navController.navigateUp() }
                     )
                 }
             }

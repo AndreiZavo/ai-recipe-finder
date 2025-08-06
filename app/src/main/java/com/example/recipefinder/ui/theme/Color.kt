@@ -28,7 +28,8 @@ class AppColors {
         val MainAccent10 = Color(0x1A2A2850)
         val PrimaryButton = Color(0xFF65558F)
         val ButtonDisabled = Color(0xFFACAEB3)
-        val Border = Color(0xFFD9D9D9)
+        val BorderPrimary = Color(0xFFD9D9D9)
+        val BorderSecondary = Color(0xFF000000)
         val Shadow = Color(0xFFE1E1E1)
 
         //Divider
