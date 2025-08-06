@@ -1,6 +1,6 @@
 package com.example.recipefinder.data.models
 
-import kotlinx.collections.immutable.PersistentList
+import com.example.recipefinder.ui.recipes.RecipeItemViewModel
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.serialization.Serializable
 
@@ -16,5 +16,5 @@ data class Recipe(
 
 @Serializable
 data class FavoriteRecipes(
-    val recipes: PersistentList<Recipe> = persistentListOf()
+    val recipes: List<RecipeItemViewModel> = persistentListOf()
 )

@@ -12,10 +12,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -35,10 +33,13 @@ import com.example.recipefinder.ui.utils.text.emptyFieldValidator
 import com.example.recipefinder.ui.utils.text.isFormValid
 import com.example.recipefinder.ui.utils.text.minLengthValidator
 import com.example.recipefinder.ui.utils.text.rememberFieldState
+import com.example.recipefinder.utils.anyLoading
+import com.example.recipefinder.utils.data
 import com.example.recipefinder.utils.ifFailed
-import com.example.recipefinder.utils.ifSuccess
-import com.example.recipefinder.utils.isLoading
+import com.example.recipefinder.utils.isSuccess
 import com.example.recipefinder.utils.withoutEmoji
+import kotlinx.coroutines.launch
+
 
 @Composable
 fun RecipesScreen(
@@ -46,7 +47,7 @@ fun RecipesScreen(
     viewModel: RecipesViewModel = hiltViewModel()
 ) {
     val recipeState by viewModel.recipesFlow.collectAsState()
-    var searchModeEnabled by rememberSaveable { mutableStateOf(false) }
+    val favoriteRecipeState by viewModel.favoriteRecipesFlow.collectAsState()
 
     val searchFieldState = rememberFieldState(
         valuePreprocessor = { _, newValue ->
@@ -59,6 +60,10 @@ fun RecipesScreen(
     )
 
     val searchFieldFocusRequester = remember { FocusRequester() }
+    val query = searchFieldState.value
+    val showFavorites = query.isBlank()
+
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         containerColor = AppColors.Primary
@@ -78,7 +83,6 @@ fun RecipesScreen(
                 fieldState = searchFieldState,
                 onSearchIconClick = {
                     if (isFormValid(searchFieldState)) {
-                        searchModeEnabled = true
                         viewModel.searchRecipes(searchFieldState.value)
                     }
                 },
@@ -88,16 +92,22 @@ fun RecipesScreen(
             Text(
                 modifier = Modifier.padding(top = 32.dp),
                 text = stringResource(
-                    if (!searchModeEnabled) R.string.favorites_title else R.string.results_suggested_recipes
+                    if (showFavorites) R.string.favorites_title else R.string.results_suggested_recipes
                 ),
                 style = AppTextStyles.bold,
             )
 
             ProgressOverlay(
                 modifier = Modifier.fillMaxSize(),
-                loading = recipeState.isLoading,
+                loading = anyLoading(recipeState, favoriteRecipeState),
             ) {
-                recipeState.ifSuccess { recipes ->
+                val recipesToShow = if (showFavorites) {
+                    if (favoriteRecipeState.isSuccess) favoriteRecipeState.data else emptyList<RecipeItemViewModel>()
+                } else {
+                    if (recipeState.isSuccess) recipeState.data else emptyList<RecipeItemViewModel>()
+                }
+
+                recipesToShow.let { recipes ->
                     LazyColumn(
                         modifier = Modifier.padding(top = 16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -110,12 +120,16 @@ fun RecipesScreen(
                                 modifier = Modifier.padding(bottom = 16.dp),
                                 recipe = recipe,
                                 onClick = { onRecipeClick(recipe) },
-                                onFavoriteClick = {}
+                                onFavoriteClick = {
+                                    coroutineScope.launch {
+                                        viewModel.onFavoriteClick(recipe)
+                                    }
+                                }
                             )
                         }
 
                         item {
-                            if (searchModeEnabled) {
+                            if (!showFavorites) {
                                 PrimaryButton(
                                     modifier = Modifier
                                         .padding(top = 20.dp),
@@ -129,22 +143,23 @@ fun RecipesScreen(
                     }
                 }
             }
+        }
 
-            recipeState.ifFailed {
-                GenericDialog(
-                    onDismissRequest = {
+        recipeState.ifFailed {
+            GenericDialog(
+                onDismissRequest = {
+                    viewModel.searchRecipes(searchFieldState.value)
+                },
+                title = stringResource(R.string.search_error_title),
+                message = stringResource(R.string.search_error_message_default),
+                positiveButton = PositiveDialogButton(
+                    text = stringResource(R.string.ok),
+                    onClick = {
                         viewModel.searchRecipes(searchFieldState.value)
-                    },
-                    title = stringResource(R.string.search_error_title),
-                    message = stringResource(R.string.search_error_message_default),
-                    positiveButton = PositiveDialogButton(
-                        text = stringResource(R.string.ok),
-                        onClick = {
-                            viewModel.searchRecipes(searchFieldState.value)
-                        }
-                    )
+                    }
                 )
-            }
+            )
         }
     }
 }
+

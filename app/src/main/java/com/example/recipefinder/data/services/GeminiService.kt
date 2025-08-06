@@ -9,7 +9,7 @@ import javax.inject.Singleton
 
 
 @Singleton
-class GeminiService2 @Inject constructor(
+class GeminiService @Inject constructor(
     private val model: GenerativeModel
 ) {
     private val json = Json { ignoreUnknownKeys = true }
