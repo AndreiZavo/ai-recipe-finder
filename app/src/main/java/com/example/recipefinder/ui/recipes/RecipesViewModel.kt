@@ -25,13 +25,6 @@ import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
-
-data class RecipesInfo(
-    val searchedRecipes: List<RecipeItemViewModel>,
-    val favoriteRecipes: List<RecipeItemViewModel>
-)
-
-
 val Context.dataStore: DataStore<FavoriteRecipes> by dataStore(
     fileName = "app-settings.json",
     serializer = FavoriteSerializer
@@ -42,11 +35,10 @@ class RecipesViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val geminiService: GeminiService,
 ) : BaseViewModel<Unit>() {
-
-    private val appDataStore: DataStore<FavoriteRecipes> = context.dataStore
-
     val recipesFlow = dataFlowOf<List<RecipeItemViewModel>>()
     val favoriteRecipesFlow = dataFlowOf<List<RecipeItemViewModel>>()
+
+    private val appDataStore: DataStore<FavoriteRecipes> = context.dataStore
 
     init {
         loadFavoriteRecipes()
@@ -55,8 +47,6 @@ class RecipesViewModel @Inject constructor(
     fun searchRecipes(query: String) {
         recipesFlow.execute {
             val searchResult = geminiService.searchRecipes(query)
-
-            Log.d("geminiVM", searchResult.toString())
 
             val favIds = favoriteIds()
             val newRecipes = searchResult.map { recipe ->
@@ -147,35 +137,3 @@ data class RecipeItemViewModel(
         isFavorite = !isFavorite
     }
 }
-
-
-val mockedRecipes = listOf<RecipeItemViewModel>(
-    RecipeItemViewModel(
-        id = "1",
-        title = "Mocked Tasty Burger",
-        duration = 20,
-        favoriteState = true,
-        imageUrl = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        ingredients = listOf(),
-        instructions = listOf()
-
-    ),
-    RecipeItemViewModel(
-        id = "2",
-        title = "Mocked Delicious Pasta",
-        duration = 20,
-        favoriteState = true,
-        imageUrl = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        ingredients = listOf(),
-        instructions = listOf()
-    ),
-    RecipeItemViewModel(
-        id = "3",
-        title = "Mocked Fish & Chips",
-        duration = 10,
-        favoriteState = true,
-        imageUrl = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        ingredients = listOf(),
-        instructions = listOf()
-    )
-)

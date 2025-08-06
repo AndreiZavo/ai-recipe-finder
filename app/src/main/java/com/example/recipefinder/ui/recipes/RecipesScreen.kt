@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.recipefinder.R
 import com.example.recipefinder.ui.components.GenericDialog
 import com.example.recipefinder.ui.components.PositiveDialogButton
@@ -44,7 +43,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun RecipesScreen(
     onRecipeClick: (RecipeItemViewModel) -> Unit,
-    viewModel: RecipesViewModel = hiltViewModel()
+    viewModel: RecipesViewModel
 ) {
     val recipeState by viewModel.recipesFlow.collectAsState()
     val favoriteRecipeState by viewModel.favoriteRecipesFlow.collectAsState()
