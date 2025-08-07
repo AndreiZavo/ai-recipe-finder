@@ -6,6 +6,17 @@ Built entirely with **Jetpack Compose**, the app demonstrates clean architecture
 
 ---
 
+## 🖼️ Screenshots
+
+<p float="left">
+  <img src=".mockups/details.png" width="240" />
+  <img src="screenshots/no_results.png" width="240" />
+  <img src="screenshots/loading.png" width="240" />
+  <img src="screenshots/details_scroll.png" width="240" />
+</p>
+
+---
+
 ## ✨ Features
 
 - 🔎 **AI-powered search** — Users can type prompts like _"something quick with tofu"_ to get smart suggestions
@@ -61,17 +72,6 @@ The app is structured around a **single source of truth** in `RecipesViewModel`.
 - `displayedRecipes` — the current list rendered in the UI  
 
 This ensures seamless transitions between searching, favoriting, and navigating between screens. The app uses optimistic updates to reflect favorite state immediately and includes a `selectedRecipeFlow` for managing detail screen content reactively.
-
----
-
-## 🖼️ Screenshots
-
-<p float="left">
-  <img src="screenshots/search_results.png" width="240" />
-  <img src="screenshots/no_results.png" width="240" />
-  <img src="screenshots/loading.png" width="240" />
-  <img src="screenshots/details_scroll.png" width="240" />
-</p>
 
 ---
 
