@@ -17,9 +17,12 @@ import com.example.recipefinder.ui.base.BaseViewModel
 import com.example.recipefinder.utils.DataState
 import com.example.recipefinder.utils.data
 import com.example.recipefinder.utils.dataFlowOf
+import com.example.recipefinder.utils.dataOrNull
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
@@ -31,11 +34,11 @@ val Context.dataStore: DataStore<FavoriteRecipes> by dataStore(
     serializer = FavoriteSerializer
 )
 
-//TODO see if you have time to implement this
 data class RecipeInfo(
     val searchedRecipes: List<RecipeItemViewModel>,
     val favoriteRecipes: List<RecipeItemViewModel>,
-    val displayedRecipes: List<RecipeItemViewModel>
+    val displayedRecipes: List<RecipeItemViewModel>,
+    val isDisplayingSearchResults: Boolean = false,
 )
 
 @HiltViewModel
@@ -43,8 +46,8 @@ class RecipesViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val geminiService: GeminiService,
 ) : BaseViewModel<Unit>() {
-    val recipesFlow = dataFlowOf<List<RecipeItemViewModel>>()
-    val favoriteRecipesFlow = dataFlowOf<List<RecipeItemViewModel>>()
+
+    val recipesFlow = MutableStateFlow<DataState<RecipeInfo>>(DataState.Uninitialized)
     val selectedRecipeFlow = dataFlowOf<RecipeItemViewModel>()
 
     private val appDataStore: DataStore<FavoriteRecipes> = context.dataStore
@@ -54,25 +57,58 @@ class RecipesViewModel @Inject constructor(
     }
 
     fun searchRecipes(query: String) {
-        recipesFlow.execute {
-            val searchResult = geminiService.searchRecipes(query)
+        recipesFlow.update { DataState.Loading }
 
-            val favIds = getFavoriteRecipeIds()
-            val newRecipes = searchResult.map { recipe ->
-                RecipeItemViewModel(
-                    id = recipe.id,
-                    title = recipe.title,
-                    duration = recipe.durationMinutes,
-                    favoriteState = recipe.id in favIds,
-                    imageUrl = recipe.imageUrl,
-                    ingredients = recipe.ingredients,
-                    instructions = recipe.instructions,
-                )
+        viewModelScope.launch {
+            runCatching {
+                geminiService.searchRecipes(query)
             }
+                .onSuccess { searchResult ->
+                    val favIds = getFavoriteRecipeIds()
+                    val newRecipes = searchResult.map { recipe ->
+                        RecipeItemViewModel(
+                            id = recipe.id,
+                            title = recipe.title,
+                            duration = recipe.durationMinutes,
+                            favoriteState = recipe.id in favIds,
+                            imageUrl = recipe.imageUrl,
+                            ingredients = recipe.ingredients,
+                            instructions = recipe.instructions,
+                        )
+                    }
 
-            update(newRecipes)
+                    recipesFlow.update { recipes ->
+                        when (recipes) {
+                            is DataState.Success -> {
+                                val recipeInfo = recipes.data
+                                DataState.Success(
+                                    recipeInfo.copy(
+                                        searchedRecipes = newRecipes,
+                                        displayedRecipes = newRecipes,
+                                        isDisplayingSearchResults = true
+                                    )
+                                )
+                            }
+
+                            else -> {
+                                DataState.Success(
+                                    RecipeInfo(
+                                        searchedRecipes = newRecipes,
+                                        favoriteRecipes = emptyList(),
+                                        displayedRecipes = newRecipes,
+                                        isDisplayingSearchResults = true
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+                .onFailure { e ->
+                    recipesFlow.update { DataState.Failed(Throwable(e)) }
+                }
         }
     }
+
 
     fun onFavoriteClick(clickedRecipe: RecipeItemViewModel) {
         viewModelScope.launch {
@@ -95,53 +131,103 @@ class RecipesViewModel @Inject constructor(
     }
 
     fun loadSelectedRecipe(recipeId: String) {
-        if (selectedRecipeFlow.value is DataState.Uninitialized == false) {
-            if (selectedRecipeFlow.value.data.id == recipeId) return
-        }
-
         selectedRecipeFlow.execute {
+            val favoriteRecipes = appDataStore.data.first().recipes
             val allRecipes = if (recipesFlow.value is DataState.Uninitialized) {
-                favoriteRecipesFlow.value.data
+                favoriteRecipes
             } else {
-                recipesFlow.value.data + favoriteRecipesFlow.value.data
+                favoriteRecipes + recipesFlow.value.data.searchedRecipes
             }
-            val recipe = allRecipes.first { it.id == recipeId }
+
+            val recipe = allRecipes.firstOrNull { it.id == recipeId }
+                ?: error("Recipe not found: $recipeId")
+
             update(recipe)
         }
     }
 
-    private suspend fun updateFavoriteState(recipeItem: RecipeItemViewModel) {
-        val favoriteIds = getFavoriteRecipeIds()
-        recipesFlow.execute {
-            update {
-                it.data.map { recipe ->
-                    if (recipe.id == recipeItem.id) {
-                        recipe.copy(favoriteState = !recipe.favoriteState)
-                    } else {
-                        recipe.copy(favoriteState = recipe.id in favoriteIds)
+
+    fun loadFavoriteRecipes() {
+        viewModelScope.launch {
+            runCatching {
+                appDataStore.data.first()
+            }.onSuccess { favoriteRecipes ->
+                recipesFlow.update { recipes ->
+                    when (recipes) {
+                        is DataState.Success -> {
+                            val recipeInfo = recipes.data
+                            val shouldShowFavorites = !recipeInfo.isDisplayingSearchResults
+
+                            DataState.Success(
+                                recipeInfo.copy(
+                                    favoriteRecipes = favoriteRecipes.recipes,
+                                    displayedRecipes = if (shouldShowFavorites) {
+                                        favoriteRecipes.recipes
+                                    } else {
+                                        recipeInfo.displayedRecipes
+                                    }
+                                )
+                            )
+                        }
+
+                        else -> {
+                            DataState.Success(
+                                RecipeInfo(
+                                    searchedRecipes = emptyList(),
+                                    favoriteRecipes = favoriteRecipes.recipes,
+                                    displayedRecipes = favoriteRecipes.recipes,
+                                    isDisplayingSearchResults = false
+                                )
+                            )
+                        }
                     }
                 }
+            }.onFailure {
+                Log.e("DataStore", "Error loading favorite recipes: ${it.message}")
             }
         }
     }
 
-    fun loadFavoriteRecipes() {
-        favoriteRecipesFlow.execute {
-            runCatching {
-                val favoriteRecipes = appDataStore.data.first()
-                favoriteRecipes
-            }
-                .onSuccess {
-                    update(it.recipes)
-                }
-                .onFailure {
-                    Log.e("DataStore", "Error loading favorite recipes: ${it.message}")
-                }
+    fun resetToFavorites() {
+        recipesFlow.update { recipes ->
+            val recipeInfo = recipes.dataOrNull ?: return@update recipes
+            DataState.Success(
+                recipeInfo.copy(
+                    searchedRecipes = emptyList(),
+                    displayedRecipes = recipeInfo.favoriteRecipes,
+                    isDisplayingSearchResults = false
+                )
+            )
         }
     }
 
     private suspend fun getFavoriteRecipeIds(): Set<String> =
         appDataStore.data.first().recipes.map { it.id }.toSet()
+
+    private fun updateFavoriteState(recipeItem: RecipeItemViewModel) {
+        viewModelScope.launch {
+            recipesFlow.update { recipes ->
+                val recipeInfo = recipes.dataOrNull ?: return@update recipes
+
+                val updatedFavorites = recipeInfo.favoriteRecipes.map {
+                    if (it.id == recipeItem.id) it.copy(favoriteState = !it.favoriteState)
+                    else it.copy(favoriteState = it.favoriteState)
+                }
+
+                val updatedDisplayed = recipeInfo.displayedRecipes.map {
+                    if (it.id == recipeItem.id) it.copy(favoriteState = !it.favoriteState)
+                    else it.copy(favoriteState = it.favoriteState)
+                }
+
+                DataState.Success(
+                    recipeInfo.copy(
+                        favoriteRecipes = updatedFavorites,
+                        displayedRecipes = updatedDisplayed
+                    )
+                )
+            }
+        }
+    }
 }
 
 @Stable

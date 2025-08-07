@@ -12,11 +12,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,10 +44,10 @@ import com.example.recipefinder.ui.utils.text.emptyFieldValidator
 import com.example.recipefinder.ui.utils.text.isFormValid
 import com.example.recipefinder.ui.utils.text.minLengthValidator
 import com.example.recipefinder.ui.utils.text.rememberFieldState
-import com.example.recipefinder.utils.anyLoading
+import com.example.recipefinder.utils.DataState
 import com.example.recipefinder.utils.data
 import com.example.recipefinder.utils.ifFailed
-import com.example.recipefinder.utils.isSuccess
+import com.example.recipefinder.utils.isLoading
 import com.example.recipefinder.utils.withoutEmoji
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -58,7 +60,12 @@ fun RecipesScreen(
     viewModel: RecipesViewModel
 ) {
     val recipeState by viewModel.recipesFlow.collectAsState()
-    val favoriteRecipeState by viewModel.favoriteRecipesFlow.collectAsState()
+
+    val recipesToShow = if (recipeState is DataState.Success) {
+        recipeState.data.displayedRecipes
+    } else {
+        emptyList()
+    }
 
     val searchFieldState = rememberFieldState(
         valuePreprocessor = { _, newValue ->
@@ -72,30 +79,29 @@ fun RecipesScreen(
 
     val searchFieldFocusRequester = remember { FocusRequester() }
 
+    val areRecipeLoading = recipeState.isLoading
+
     val query = searchFieldState.value
     val showFavorites = query.isBlank()
 
-    val recipesToShow = if (showFavorites) {
-        if (favoriteRecipeState.isSuccess) favoriteRecipeState.data else emptyList<RecipeItemViewModel>()
-    } else {
-        if (recipeState.isSuccess) recipeState.data else emptyList<RecipeItemViewModel>()
-    }
-
-    var hasSearched by remember { mutableStateOf(false) }
-    if (searchFieldState.value.isBlank() && hasSearched) {
-        hasSearched = false
-    }
+    var hasSearched by rememberSaveable { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
     var searchJob by remember { mutableStateOf<Job?>(null) }
-
-    val areRecipeLoading = anyLoading(recipeState, favoriteRecipeState)
 
     val animationComposition by rememberLottieComposition(
         LottieCompositionSpec.RawRes(R.raw.animation_ai_star_loading)
     )
 
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(query) {
+        if (query.isBlank() && hasSearched) {
+            viewModel.resetToFavorites()
+            hasSearched = false
+        }
+    }
+
     DisposableEffect(Unit) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
@@ -145,7 +151,8 @@ fun RecipesScreen(
                 Text(
                     modifier = Modifier.padding(top = 32.dp),
                     text = stringResource(
-                        if (showFavorites) R.string.favorites_title else R.string.results_suggested_recipes
+                        if (recipeState.data.isDisplayingSearchResults) R.string.results_suggested_recipes
+                        else R.string.favorites_title
                     ),
                     style = AppTextStyles.bold,
                 )

@@ -23,7 +23,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -32,11 +31,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.recipefinder.R
+import com.example.recipefinder.ui.components.AnnotatedList
 import com.example.recipefinder.ui.components.AsyncImageWrapper
 import com.example.recipefinder.ui.components.FavoriteIconButton
 import com.example.recipefinder.ui.components.GenericDialog
-import com.example.recipefinder.ui.components.AnnotatedList
 import com.example.recipefinder.ui.components.ListType
 import com.example.recipefinder.ui.components.PositiveDialogButton
 import com.example.recipefinder.ui.components.ProgressOverlay
@@ -49,7 +50,6 @@ import com.example.recipefinder.ui.utils.formatDuration
 import com.example.recipefinder.utils.ifFailed
 import com.example.recipefinder.utils.ifSuccess
 import com.example.recipefinder.utils.isLoading
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,7 +68,9 @@ fun RecipeDetailsScreen(
     val configuration = LocalConfiguration.current
     val headerHeight = remember { configuration.screenHeightDp.dp * .5f }
 
-    val coroutineScope = rememberCoroutineScope()
+    val animationComposition by rememberLottieComposition(
+        LottieCompositionSpec.RawRes(R.raw.animation_ai_star_loading)
+    )
 
     StatusBarsAppearance(lightStatusBars = showTopBar)
 
@@ -82,7 +84,7 @@ fun RecipeDetailsScreen(
         ProgressOverlay(
             modifier = Modifier.fillMaxSize(),
             loading = selectedRecipe.isLoading,
-            animationComposition = null
+            animationComposition = animationComposition
         ) {
             selectedRecipe.ifSuccess { recipe ->
                 Column(
@@ -135,9 +137,8 @@ fun RecipeDetailsScreen(
                             isFavorite = recipe.isFavorite,
                             onClick = {
                                 recipe.toggleFavorite()
-                                coroutineScope.launch {
-                                    recipeViewModel.onFavoriteClick(recipe)
-                                }
+                                recipeViewModel.onFavoriteClick(recipe)
+                                recipeViewModel.loadSelectedRecipe(recipe.id)
                             }
                         )
                     }

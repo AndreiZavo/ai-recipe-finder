@@ -129,7 +129,7 @@ fun SearchBar(
                             keyboardController?.hide()
                             focusManager.clearFocus(force = true)
                             onSearchIconClick()
-                        }
+                        },
                     ),
                     decorationBox = {
                         if (fieldState.value.isEmpty()) {
