@@ -125,7 +125,7 @@ class RecipesViewModel @Inject constructor(
         }
     }
 
-    private fun loadFavoriteRecipes() {
+    fun loadFavoriteRecipes() {
         favoriteRecipesFlow.execute {
             runCatching {
                 val favoriteRecipes = appDataStore.data.first()
