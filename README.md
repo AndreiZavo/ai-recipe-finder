@@ -2,7 +2,7 @@
 
 A modern Android app where users can describe what they want to eat and get personalized recipe suggestions powered by AI.
 
-Built entirely with **Jetpack Compose**, the app demonstrates clean architecture, unidirectional state management with `StateFlow`, and seamless integration with an AI service for natural language recipe generation. It also places a strong emphasis on a responsive, user-friendly UI — from animated feedback to thoughtful error states.
+Built entirely with **Jetpack Compose**, the app demonstrates clean architecture, unidirectional state management with `StateFlow`, and seamless integration with an AI service for natural language recipe generation. Favorites are stored locally, avoiding complex database setups in favor of simplicity and performance. The app also places a strong emphasis on a responsive, user-friendly UI, from animated feedback to thoughtful error states.
 
 ---
 
