@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,6 +18,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -32,24 +35,31 @@ import androidx.compose.ui.unit.sp
 import com.example.recipefinder.R
 import com.example.recipefinder.ui.components.AsyncImageWrapper
 import com.example.recipefinder.ui.components.FavoriteIconButton
+import com.example.recipefinder.ui.components.GenericDialog
 import com.example.recipefinder.ui.components.OrderedList
+import com.example.recipefinder.ui.components.PositiveDialogButton
+import com.example.recipefinder.ui.components.ProgressOverlay
 import com.example.recipefinder.ui.components.StatusBarsAppearance
 import com.example.recipefinder.ui.components.UnorderedList
-import com.example.recipefinder.ui.recipes.RecipeItemViewModel
 import com.example.recipefinder.ui.recipes.RecipesViewModel
 import com.example.recipefinder.ui.theme.AppColors
 import com.example.recipefinder.ui.theme.AppTextStyles
 import com.example.recipefinder.ui.utils.ShowOnAppearanceToolbar
 import com.example.recipefinder.ui.utils.formatDuration
+import com.example.recipefinder.utils.ifFailed
+import com.example.recipefinder.utils.ifSuccess
+import com.example.recipefinder.utils.isLoading
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeDetailsScreen(
-    recipe: RecipeItemViewModel,
+    recipeId: String,
     onBackClick: () -> Unit,
     recipeViewModel: RecipesViewModel
 ) {
+    val selectedRecipe by recipeViewModel.selectedRecipeFlow.collectAsState()
+
     val screenHeight = LocalConfiguration.current.screenHeightDp
 
     val scrollState = rememberScrollState()
@@ -60,91 +70,115 @@ fun RecipeDetailsScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
+    LaunchedEffect(Unit) {
+        recipeViewModel.loadSelectedRecipe(recipeId)
+    }
+
     StatusBarsAppearance(lightStatusBars = showTopBar)
 
     Scaffold(
         contentWindowInsets = WindowInsets(top = 0.dp),
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .verticalScroll(scrollState)
+        ProgressOverlay(
+            modifier = Modifier.fillMaxSize(),
+            loading = selectedRecipe.isLoading,
+            animationComposition = null
         ) {
-            Box {
-                AsyncImageWrapper(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(headerHeight),
-                    imageUrl = recipe.imageUrl,
-                    placeholder = painterResource(R.drawable.img_placeholder),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                )
-            }
-
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(top = 15.dp)
-                    .height(IntrinsicSize.Min),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            selectedRecipe.ifSuccess { recipe ->
                 Column(
                     modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(paddingValues)
+                        .verticalScroll(scrollState)
                 ) {
-                    Text(
-                        text = recipe.title,
-                        style = AppTextStyles.semibold,
-                        fontSize = 24.sp,
-                        color = AppColors.TextPrimary
+                    Box {
+                        AsyncImageWrapper(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(headerHeight),
+                            imageUrl = recipe.imageUrl,
+                            placeholder = painterResource(R.drawable.img_placeholder),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .padding(top = 15.dp)
+                            .height(IntrinsicSize.Min),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = recipe.title,
+                                style = AppTextStyles.semibold,
+                                fontSize = 24.sp,
+                                color = AppColors.TextPrimary
+                            )
+
+                            Text(
+                                text = formatDuration(recipe.duration),
+                                style = AppTextStyles.regular,
+                                fontSize = 14.sp,
+                                color = AppColors.TextPrimary
+                            )
+                        }
+
+                        FavoriteIconButton(
+                            isFavorite = recipe.isFavorite,
+                            onClick = {
+                                recipe.toggleFavorite()
+                                coroutineScope.launch {
+                                    recipeViewModel.onFavoriteClick(recipe)
+                                }
+                            }
+                        )
+                    }
+
+                    UnorderedList(
+                        modifier = Modifier
+                            .padding(top = 15.dp)
+                            .padding(horizontal = 16.dp),
+                        title = stringResource(R.string.recipe_details_ingredients_title),
+                        items = recipe.ingredients
                     )
 
-                    Text(
-                        text = formatDuration(recipe.duration),
-                        style = AppTextStyles.regular,
-                        fontSize = 14.sp,
-                        color = AppColors.TextPrimary
+                    OrderedList(
+                        modifier = Modifier
+                            .padding(top = 14.dp)
+                            .padding(horizontal = 16.dp),
+                        title = stringResource(R.string.recipe_details_instructions_title),
+                        items = recipe.instructions
                     )
+
+                    Spacer(modifier = Modifier.height(120.dp))
                 }
 
-                FavoriteIconButton(
-                    isFavorite = recipe.isFavorite,
-                    onClick = {
-                        recipe.toggleFavorite()
-                        coroutineScope.launch {
-                            recipeViewModel.onFavoriteClick(recipe)
-                        }
-                    }
+                ShowOnAppearanceToolbar(
+                    onBackClick = onBackClick,
+                    show = showTopBar,
+                    title = recipe.title,
                 )
             }
-
-            UnorderedList(
-                modifier = Modifier
-                    .padding(top = 15.dp)
-                    .padding(horizontal = 16.dp),
-                title = stringResource(R.string.recipe_details_ingredients_title),
-                items = recipe.ingredients
-            )
-
-            OrderedList(
-                modifier = Modifier
-                    .padding(top = 14.dp)
-                    .padding(horizontal = 16.dp),
-                title = stringResource(R.string.recipe_details_instructions_title),
-                items = recipe.instructions
-            )
-
-            Spacer(modifier = Modifier.height(120.dp))
         }
+    }
 
-        ShowOnAppearanceToolbar(
-            onBackClick = onBackClick,
-            show = showTopBar,
-            title = recipe.title,
+    selectedRecipe.ifFailed {
+        GenericDialog(
+            onDismissRequest = onBackClick,
+            title = stringResource(R.string.search_error_title),
+            message = stringResource(R.string.search_error_message_default),
+            positiveButton = PositiveDialogButton(
+                text = stringResource(R.string.ok),
+                onClick = onBackClick
+            )
         )
     }
 }

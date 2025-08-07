@@ -14,6 +14,7 @@ import com.example.recipefinder.data.local.FavoriteSerializer
 import com.example.recipefinder.data.models.FavoriteRecipes
 import com.example.recipefinder.data.services.GeminiService
 import com.example.recipefinder.ui.base.BaseViewModel
+import com.example.recipefinder.utils.DataState
 import com.example.recipefinder.utils.data
 import com.example.recipefinder.utils.dataFlowOf
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -44,6 +45,7 @@ class RecipesViewModel @Inject constructor(
 ) : BaseViewModel<Unit>() {
     val recipesFlow = dataFlowOf<List<RecipeItemViewModel>>()
     val favoriteRecipesFlow = dataFlowOf<List<RecipeItemViewModel>>()
+    val selectedRecipeFlow = dataFlowOf<RecipeItemViewModel>()
 
     private val appDataStore: DataStore<FavoriteRecipes> = context.dataStore
 
@@ -55,7 +57,6 @@ class RecipesViewModel @Inject constructor(
         recipesFlow.execute {
             val searchResult = geminiService.searchRecipes(query)
 
-            Log.d("gemini", searchResult.toString())
             val favIds = getFavoriteRecipeIds()
             val newRecipes = searchResult.map { recipe ->
                 RecipeItemViewModel(
@@ -90,6 +91,22 @@ class RecipesViewModel @Inject constructor(
             loadFavoriteRecipes()
 
             updateFavoriteState(clickedRecipe)
+        }
+    }
+
+    fun loadSelectedRecipe(recipeId: String) {
+        if (selectedRecipeFlow.value is DataState.Uninitialized == false) {
+            if (selectedRecipeFlow.value.data.id == recipeId) return
+        }
+
+        selectedRecipeFlow.execute {
+            val allRecipes = if (recipesFlow.value is DataState.Uninitialized) {
+                favoriteRecipesFlow.value.data
+            } else {
+                recipesFlow.value.data + favoriteRecipesFlow.value.data
+            }
+            val recipe = allRecipes.first { it.id == recipeId }
+            update(recipe)
         }
     }
 

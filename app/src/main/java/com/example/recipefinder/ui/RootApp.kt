@@ -14,9 +14,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.recipefinder.ui.recipe.RecipeDetailsDestination
 import com.example.recipefinder.ui.recipe.RecipeDetailsScreen
-import com.example.recipefinder.ui.recipes.RecipeItemViewModel
 import com.example.recipefinder.ui.recipes.RecipesDestination
 import com.example.recipefinder.ui.recipes.RecipesScreen
 import com.example.recipefinder.ui.recipes.RecipesViewModel
@@ -47,26 +47,20 @@ fun RootApp() {
 
                     RecipesScreen(
                         viewModel = recipesViewModel,
-                        onRecipeClick = { recipe ->
-                            navController.currentBackStackEntry
-                                ?.savedStateHandle
-                                ?.set("recipe", recipe)
-                            navController.navigate(RecipeDetailsDestination)
+                        onRecipeClick = { recipeId ->
+                            navController.navigate(RecipeDetailsDestination(recipeId))
                         }
                     )
                 }
 
                 composable<RecipeDetailsDestination> {
-                    val recipe = navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.get<RecipeItemViewModel>("recipe")
-                        ?: return@composable
-
+                    val recipeId = it.toRoute<RecipeDetailsDestination>().recipeId
                     val parentEntry = remember { navController.getBackStackEntry(RecipesDestination::class) }
                     val recipesViewModel: RecipesViewModel = hiltViewModel(parentEntry)
 
+
                     RecipeDetailsScreen(
-                        recipe = recipe,
+                        recipeId = recipeId,
                         onBackClick = { navController.navigateUp() },
                         recipeViewModel = recipesViewModel
                     )

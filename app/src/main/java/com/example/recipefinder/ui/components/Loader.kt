@@ -18,23 +18,6 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.example.recipefinder.ui.theme.AppColors
 
 @Composable
-fun Loader(
-    modifier: Modifier = Modifier,
-    animationComposition: LottieComposition?,
-) {
-    Box(
-        modifier = modifier
-            .padding(horizontal = 32.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        LottieAnimation(
-            composition = animationComposition,
-            iterations = LottieConstants.IterateForever
-        )
-    }
-}
-
-@Composable
 fun ProgressOverlay(
     loading: Boolean,
     animationComposition: LottieComposition?,
@@ -60,5 +43,22 @@ fun ProgressOverlay(
                 animationComposition = animationComposition
             )
         }
+    }
+}
+
+@Composable
+private fun Loader(
+    modifier: Modifier = Modifier,
+    animationComposition: LottieComposition?,
+) {
+    Box(
+        modifier = modifier
+            .padding(horizontal = 32.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        LottieAnimation(
+            composition = animationComposition,
+            iterations = LottieConstants.IterateForever
+        )
     }
 }

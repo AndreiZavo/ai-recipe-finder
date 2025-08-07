@@ -50,7 +50,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun RecipesScreen(
-    onRecipeClick: (RecipeItemViewModel) -> Unit,
+    onRecipeClick: (String) -> Unit,
     viewModel: RecipesViewModel
 ) {
     val recipeState by viewModel.recipesFlow.collectAsState()
@@ -147,7 +147,7 @@ fun RecipesScreen(
                             RecipeCard(
                                 modifier = Modifier.padding(bottom = 16.dp),
                                 recipe = recipe,
-                                onClick = { onRecipeClick(recipe) },
+                                onClick = { onRecipeClick(recipe.id) },
                                 onFavoriteClick = {
                                     coroutineScope.launch {
                                         viewModel.onFavoriteClick(recipe)
