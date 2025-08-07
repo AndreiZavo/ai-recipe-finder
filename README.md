@@ -8,12 +8,23 @@ Built entirely with **Jetpack Compose**, the app demonstrates clean architecture
 
 ## 🖼️ Screenshots
 
-<p float="left">
-  <img src=".mockups/details.png" width="240" />
-  <img src="screenshots/no_results.png" width="240" />
-  <img src="screenshots/loading.png" width="240" />
-  <img src="screenshots/details_scroll.png" width="240" />
+<p align="center">
+  <img src="./mockups/favorites.png" width="220" />
+  &nbsp;&nbsp;&nbsp;
+  <img src="./mockups/loading.png" width="220" />
+  &nbsp;&nbsp;&nbsp;
+  <img src="./mockups/search.png" width="220" />
 </p>
+
+<p align="center">
+  <img src="./mockups/details.png" width="220" />
+  &nbsp;&nbsp;&nbsp;
+  <img src="./mockups/no_results.png" width="220" />
+  &nbsp;&nbsp;&nbsp;
+  <img src="./mockups/details_scroll.png" width="220" />
+</p>
+
+
 
 ---
 
