@@ -136,7 +136,7 @@ private fun FavoriteButtonFavoritePreview() {
     device = Devices.PIXEL_6
 )
 @Composable
-fun PrimaryButtonPreview(
+private fun PrimaryButtonPreview(
 ) {
     PrimaryButton(
         onClick = {},

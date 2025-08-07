@@ -71,6 +71,7 @@ fun RecipesScreen(
     )
 
     val searchFieldFocusRequester = remember { FocusRequester() }
+
     val query = searchFieldState.value
     val showFavorites = query.isBlank()
 
@@ -87,6 +88,8 @@ fun RecipesScreen(
 
     val coroutineScope = rememberCoroutineScope()
     var searchJob by remember { mutableStateOf<Job?>(null) }
+
+    val areRecipeLoading = anyLoading(recipeState, favoriteRecipeState)
 
     val animationComposition by rememberLottieComposition(
         LottieCompositionSpec.RawRes(R.raw.animation_ai_star_loading)
@@ -135,10 +138,10 @@ fun RecipesScreen(
                 },
                 validationResult = searchFieldState.status,
                 searchFieldFocusRequester = searchFieldFocusRequester,
-                readOnly = anyLoading(recipeState, favoriteRecipeState),
+                readOnly = areRecipeLoading,
             )
 
-            if (!anyLoading(recipeState, favoriteRecipeState) && recipesToShow.isNotEmpty()) {
+            if (!areRecipeLoading && recipesToShow.isNotEmpty()) {
                 Text(
                     modifier = Modifier.padding(top = 32.dp),
                     text = stringResource(
@@ -150,7 +153,7 @@ fun RecipesScreen(
 
             ProgressOverlay(
                 modifier = Modifier.fillMaxSize(),
-                loading = anyLoading(recipeState, favoriteRecipeState),
+                loading = areRecipeLoading,
                 animationComposition = animationComposition
             ) {
                 recipesToShow.let { recipes ->
@@ -215,7 +218,7 @@ fun RecipesScreen(
                 title = stringResource(R.string.search_error_title),
                 message = stringResource(R.string.search_error_message_default),
                 positiveButton = PositiveDialogButton(
-                    text = stringResource(R.string.ok),
+                    text = stringResource(R.string.results_ok),
                     onClick = {
                         viewModel.searchRecipes(searchFieldState.value)
                     }
@@ -236,7 +239,7 @@ private fun NoResults() {
             modifier = Modifier
                 .fillMaxWidth(.7f),
             painter = painterResource(R.drawable.no_results),
-            contentDescription = null
+            contentDescription = stringResource(R.string.results_no_results_image_content_description)
         )
         Text(
             modifier = Modifier.padding(top = 16.dp),

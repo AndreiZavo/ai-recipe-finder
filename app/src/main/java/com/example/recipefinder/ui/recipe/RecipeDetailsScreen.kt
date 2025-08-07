@@ -36,11 +36,11 @@ import com.example.recipefinder.R
 import com.example.recipefinder.ui.components.AsyncImageWrapper
 import com.example.recipefinder.ui.components.FavoriteIconButton
 import com.example.recipefinder.ui.components.GenericDialog
-import com.example.recipefinder.ui.components.OrderedList
+import com.example.recipefinder.ui.components.AnnotatedList
+import com.example.recipefinder.ui.components.ListType
 import com.example.recipefinder.ui.components.PositiveDialogButton
 import com.example.recipefinder.ui.components.ProgressOverlay
 import com.example.recipefinder.ui.components.StatusBarsAppearance
-import com.example.recipefinder.ui.components.UnorderedList
 import com.example.recipefinder.ui.recipes.RecipesViewModel
 import com.example.recipefinder.ui.theme.AppColors
 import com.example.recipefinder.ui.theme.AppTextStyles
@@ -70,11 +70,11 @@ fun RecipeDetailsScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
+    StatusBarsAppearance(lightStatusBars = showTopBar)
+
     LaunchedEffect(Unit) {
         recipeViewModel.loadSelectedRecipe(recipeId)
     }
-
-    StatusBarsAppearance(lightStatusBars = showTopBar)
 
     Scaffold(
         contentWindowInsets = WindowInsets(top = 0.dp),
@@ -97,7 +97,7 @@ fun RecipeDetailsScreen(
                                 .height(headerHeight),
                             imageUrl = recipe.imageUrl,
                             placeholder = painterResource(R.drawable.img_placeholder),
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.recipe_details_header),
                             contentScale = ContentScale.Crop,
                         )
                     }
@@ -142,20 +142,22 @@ fun RecipeDetailsScreen(
                         )
                     }
 
-                    UnorderedList(
+                    AnnotatedList(
                         modifier = Modifier
                             .padding(top = 15.dp)
                             .padding(horizontal = 16.dp),
                         title = stringResource(R.string.recipe_details_ingredients_title),
-                        items = recipe.ingredients
+                        items = recipe.ingredients,
+                        listType = ListType.UNORDERED
                     )
 
-                    OrderedList(
+                    AnnotatedList(
                         modifier = Modifier
                             .padding(top = 14.dp)
                             .padding(horizontal = 16.dp),
                         title = stringResource(R.string.recipe_details_instructions_title),
-                        items = recipe.instructions
+                        items = recipe.instructions,
+                        listType = ListType.ORDERED
                     )
 
                     Spacer(modifier = Modifier.height(120.dp))
@@ -176,7 +178,7 @@ fun RecipeDetailsScreen(
             title = stringResource(R.string.search_error_title),
             message = stringResource(R.string.search_error_message_default),
             positiveButton = PositiveDialogButton(
-                text = stringResource(R.string.ok),
+                text = stringResource(R.string.results_ok),
                 onClick = onBackClick
             )
         )

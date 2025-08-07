@@ -14,16 +14,20 @@
     <string name="results_search_bar_placeholder">What do you feel like eating?</string>
     <string name="results_try_again">Try again</string>
     <string name="results_no_results">Hmm, nothing here yet..</string>
+    <string name="results_ok">OK</string>
 
     <!-- Search -->
     <string name="search_field_empty_error">Search query cannot be empty.</string>
     <string name="search_field_min_length_error">Search query must be 3+ characters.</string>
     <string name="search_error_title">Search Error</string>
     <string name="search_error_message_default">We couldn\'t fetch recipes right now. Please check your internet connection and try again. If the issue continues, please try again later.</string>
-    <string name="ok">OK</string>
+    <string name="search_field_content_description">Search for recipes</string>
+    <string name="search_field_erase_search">Delete query</string>
 
     <!-- Recipe Details -->
     <string name="recipe_details_ingredients_title">Ingredients</string>
     <string name="recipe_details_instructions_title">Instructions</string>
+    <string name="recipe_details_header">Image of recipe as header banner</string>
+    <string name="results_no_results_image_content_description">Image of robot not having results</string>
 
 </resources>

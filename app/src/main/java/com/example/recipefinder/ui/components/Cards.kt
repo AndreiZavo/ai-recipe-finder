@@ -97,7 +97,7 @@ fun RecipeCard(
 
 @Preview(showBackground = true)
 @Composable
-fun RecipeCardPreview() {
+private fun RecipeCardPreview() {
     RecipeCard(
         recipe = RecipeItemViewModel(
             id = "1",
@@ -115,7 +115,7 @@ fun RecipeCardPreview() {
 
 @Preview(showBackground = true)
 @Composable
-fun RecipeCardFavoritePreview() {
+private fun RecipeCardFavoritePreview() {
     RecipeCard(
         recipe = RecipeItemViewModel(
             id = "2",

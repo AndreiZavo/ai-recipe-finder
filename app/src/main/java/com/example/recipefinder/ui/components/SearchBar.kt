@@ -145,17 +145,9 @@ fun SearchBar(
 
                 if (!showClearButton) {
                     Icon(
-                        modifier = Modifier
-                            .size(size = 16.dp)
-                            .clickable(
-                                interactionSource = remember { NoRippleInteractionSource() },
-                                indication = null,
-                                onClick = {
-                                    onSearchIconClick()
-                                }
-                            ),
+                        modifier = Modifier.size(size = 16.dp),
                         painter = painterResource(id = R.drawable.ic_searchbar),
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.search_field_content_description),
                     )
                 } else {
                     Icon(
@@ -167,7 +159,7 @@ fun SearchBar(
                                 onClick = { fieldState.onValueChange("") }
                             ),
                         imageVector = Icons.Default.Close,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.search_field_erase_search),
                     )
                 }
             }

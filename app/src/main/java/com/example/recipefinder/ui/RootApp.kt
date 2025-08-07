@@ -58,7 +58,6 @@ fun RootApp() {
                     val parentEntry = remember { navController.getBackStackEntry(RecipesDestination::class) }
                     val recipesViewModel: RecipesViewModel = hiltViewModel(parentEntry)
 
-
                     RecipeDetailsScreen(
                         recipeId = recipeId,
                         onBackClick = { navController.navigateUp() },
