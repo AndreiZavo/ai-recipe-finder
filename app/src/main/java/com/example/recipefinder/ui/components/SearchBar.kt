@@ -7,6 +7,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -46,6 +47,9 @@ import com.example.recipefinder.ui.theme.CornerShapes
 import com.example.recipefinder.ui.utils.NoRippleInteractionSource
 import com.example.recipefinder.ui.utils.keyboardAsState
 import com.example.recipefinder.ui.utils.text.FieldState
+import com.example.recipefinder.ui.utils.text.ValidationError
+import com.example.recipefinder.ui.utils.text.ValidationResult
+import com.example.recipefinder.ui.utils.text.ValidationSuccess
 import com.example.recipefinder.ui.utils.text.rememberFieldState
 
 @Composable
@@ -56,6 +60,7 @@ fun SearchBar(
     searchFieldFocusRequester: FocusRequester,
     shape: Shape = CornerShapes.Large,
     readOnly: Boolean = false,
+    validationResult: ValidationResult?,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val focusManager = LocalFocusManager.current
@@ -69,91 +74,111 @@ fun SearchBar(
         }
     }
 
+    val errorMessage = remember(validationResult) {
+        when (validationResult) {
+            is ValidationError -> validationResult.errorMessage
+            ValidationSuccess -> null
+            else -> null
+        }
+    }
+
     LaunchedEffect(isKeyboardOpened) {
         if (focused && !isKeyboardOpened) {
             focusManager.clearFocus()
         }
     }
 
-    Box(
-        modifier = modifier
-            .height(40.dp)
-            .background(AppColors.Primary, shape = shape)
-            .border(
-                width = 1.dp,
-                color = AppColors.BorderPrimary,
-                shape = shape
-            )
-            .clickable(interactionSource = interactionSource, indication = null, onClick = {})
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxSize(),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            BasicTextField(
-                modifier = Modifier
-                    .weight(1f)
-                    .focusRequester(searchFieldFocusRequester),
-                value = fieldState.value,
-                onValueChange = {
-                    fieldState.onValueChange(it)
-                },
-                textStyle = TextStyle(
-                    fontSize = 16.sp,
-                    color = AppColors.TextPrimary
-                ),
-                readOnly = readOnly,
-                maxLines = 1,
-                singleLine = true,
-                interactionSource = interactionSource,
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(
-                    onSearch = {
-                        keyboardController?.hide()
-                        focusManager.clearFocus(force = true)
-                        onSearchIconClick()
-                    }
-                ),
-                decorationBox = {
-                    if (fieldState.value.isEmpty()) {
-                        Text(
-                            text = stringResource(R.string.results_search_bar_placeholder),
-                            color = AppColors.TextPlaceholder,
-                            style = AppTextStyles.regular
-                        )
-                    }
-                    it()
-                }
-            )
-
-            if (!showClearButton) {
-                Icon(
-                    modifier = Modifier
-                        .size(size = 16.dp)
-                        .clickable(
-                            interactionSource = remember { NoRippleInteractionSource() },
-                            indication = null,
-                            onClick = {
-                                onSearchIconClick()
-                            }
-                        ),
-                    painter = painterResource(id = R.drawable.ic_searchbar),
-                    contentDescription = null,
+    Column {
+        Box(
+            modifier = modifier
+                .height(40.dp)
+                .background(AppColors.Primary, shape = shape)
+                .border(
+                    width = 1.dp,
+                    color = AppColors.BorderPrimary,
+                    shape = shape
                 )
-            } else {
-                Icon(
+                .clickable(interactionSource = interactionSource, indication = null, onClick = {})
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxSize(),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                BasicTextField(
                     modifier = Modifier
-                        .size(size = 16.dp)
-                        .clickable(
-                            interactionSource = remember { NoRippleInteractionSource() },
-                            indication = null,
-                            onClick = { fieldState.onValueChange("") }
-                        ),
-                    imageVector = Icons.Default.Close,
-                    contentDescription = null,
+                        .weight(1f)
+                        .focusRequester(searchFieldFocusRequester),
+                    value = fieldState.value,
+                    onValueChange = {
+                        fieldState.onValueChange(it)
+                    },
+                    textStyle = TextStyle(
+                        fontSize = 16.sp,
+                        color = AppColors.TextPrimary
+                    ),
+                    readOnly = readOnly,
+                    maxLines = 1,
+                    singleLine = true,
+                    interactionSource = interactionSource,
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            keyboardController?.hide()
+                            focusManager.clearFocus(force = true)
+                            onSearchIconClick()
+                        }
+                    ),
+                    decorationBox = {
+                        if (fieldState.value.isEmpty()) {
+                            Text(
+                                text = stringResource(R.string.results_search_bar_placeholder),
+                                color = AppColors.TextPlaceholder,
+                                style = AppTextStyles.regular
+                            )
+                        }
+                        it()
+                    }
+                )
+
+                if (!showClearButton) {
+                    Icon(
+                        modifier = Modifier
+                            .size(size = 16.dp)
+                            .clickable(
+                                interactionSource = remember { NoRippleInteractionSource() },
+                                indication = null,
+                                onClick = {
+                                    onSearchIconClick()
+                                }
+                            ),
+                        painter = painterResource(id = R.drawable.ic_searchbar),
+                        contentDescription = null,
+                    )
+                } else {
+                    Icon(
+                        modifier = Modifier
+                            .size(size = 16.dp)
+                            .clickable(
+                                interactionSource = remember { NoRippleInteractionSource() },
+                                indication = null,
+                                onClick = { fieldState.onValueChange("") }
+                            ),
+                        imageVector = Icons.Default.Close,
+                        contentDescription = null,
+                    )
+                }
+            }
+        }
+        errorMessage?.let {
+            if (it.isNotEmpty() && isKeyboardOpened) {
+                Text(
+                    modifier = Modifier.padding(top = 8.dp, start = 16.dp),
+                    text = it,
+                    style = AppTextStyles.regular,
+                    color = AppColors.Error,
                 )
             }
         }
@@ -166,13 +191,14 @@ fun SearchBar(
     device = Devices.PIXEL_6
 )
 @Composable
-fun SearchBarPreview() {
+private fun SearchBarPreview() {
     val searchFieldState = rememberFieldState("")
     Box {
         SearchBar(
             fieldState = searchFieldState,
             onSearchIconClick = {},
-            searchFieldFocusRequester = FocusRequester()
+            searchFieldFocusRequester = FocusRequester(),
+            validationResult = searchFieldState.status
         )
     }
 }

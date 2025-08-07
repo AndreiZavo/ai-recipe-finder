@@ -133,8 +133,9 @@ fun RecipesScreen(
                         }
                     }
                 },
+                validationResult = searchFieldState.status,
                 searchFieldFocusRequester = searchFieldFocusRequester,
-                readOnly = anyLoading(recipeState, favoriteRecipeState)
+                readOnly = anyLoading(recipeState, favoriteRecipeState),
             )
 
             if (!anyLoading(recipeState, favoriteRecipeState) && recipesToShow.isNotEmpty()) {
